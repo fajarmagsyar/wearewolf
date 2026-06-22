@@ -24,6 +24,12 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
     window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
   }
 
+  const copyLink = () => {
+    const url = `${window.location.origin}/join/${room.code}`
+    navigator.clipboard?.writeText(url)
+    window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
+  }
+
   return (
     <>
       <div className="panel center">
@@ -41,6 +47,9 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
           {room.code}
         </div>
         <div className="muted mt" style={{ fontSize: '.8rem' }}>{t('ui.tap_to_copy', locale)}</div>
+        <button className="btn sm paper mt" onClick={copyLink} style={{ marginTop: 12 }}>
+          🔗 {t('ui.share', locale)} Link
+        </button>
       </div>
 
       <div className="panel">

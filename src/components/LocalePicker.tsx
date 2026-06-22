@@ -21,7 +21,8 @@ export function LocalePicker() {
   return (
     <div className="modal-back">
       <div className="modal" style={{ textAlign: 'center', maxWidth: 340 }}>
-        <div style={{ fontFamily: 'var(--font)', fontSize: '1.6rem', textTransform: 'uppercase', marginBottom: 6 }}>
+        <img src="/favicon.svg" alt="" width={56} height={56} style={{ display: 'block', margin: '0 auto 12px', boxShadow: 'var(--shadow-sm)' }} />
+        <div style={{ fontFamily: 'var(--font)', fontSize: '2.2rem', textTransform: 'uppercase', fontWeight: 900, lineHeight: 1, marginBottom: 8 }}>
           WE&rsquo;RE WOLF
         </div>
         <p style={{ marginBottom: 20, color: 'var(--muted)', fontSize: '.95rem' }}>
