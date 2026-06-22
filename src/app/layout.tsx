@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { GlobalProviders } from '@/components/GlobalProviders'
 import { LocaleToggle } from '@/components/LocaleToggle'
+import { LocalePicker } from '@/components/LocalePicker'
 
 export const metadata: Metadata = {
   title: "We're Wolf",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <GlobalProviders>
+          <LocalePicker />
           <div className="app">
             <header className="topbar">
               <a href="/" className="brand" style={{ textDecoration: 'none', color: 'inherit' }}>
