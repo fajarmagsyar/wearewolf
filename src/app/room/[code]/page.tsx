@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useRoom } from '@/hooks/useRoom'
 import { useGlobalConfirm } from '@/components/GlobalProviders'
@@ -21,8 +21,21 @@ export default function RoomPage() {
   const code = (params.code as string).toUpperCase()
 
   const [locale, setLocale] = useState<Locale>('en')
-  const { data, loading, error, setData } = useRoom(code)
+  const { data, loading, error, setData, broadcastTimer, timerBroadcast } = useRoom(code)
   const { open: confirm } = useGlobalConfirm()
+  const prevPlayersRef = useRef<{ id: number; displayName: string }[]>([])
+
+  useEffect(() => {
+    if (!data) return
+    const prev = prevPlayersRef.current
+    if (prev.length > 0 && !data.isHost) {
+      const currentIds = new Set(data.players.map(p => p.id))
+      prev.filter(p => !currentIds.has(p.id)).forEach(p => {
+        dispatchToast(`${p.displayName} was removed from the lobby`)
+      })
+    }
+    prevPlayersRef.current = data.players.map(p => ({ id: p.id, displayName: p.displayName }))
+  }, [data])
 
   useEffect(() => {
     const stored = document.cookie.split(';').find(c => c.trim().startsWith('locale='))
@@ -200,6 +213,7 @@ export default function RoomPage() {
             onSetCupidLovers={handleSetCupidLovers}
             onWitchHeal={handleWitchHeal}
             onWitchPoison={handleWitchPoison}
+            broadcastTimer={broadcastTimer}
           />
         ) : (
           <PlayerView
@@ -207,6 +221,7 @@ export default function RoomPage() {
             locale={locale}
             onVote={handleVote}
             onPeek={handlePeek}
+            timerBroadcast={timerBroadcast}
           />
         )
       )}

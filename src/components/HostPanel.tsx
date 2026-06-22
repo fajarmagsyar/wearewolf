@@ -6,6 +6,7 @@ import { t, Locale } from '@/lib/i18n'
 import { PlayerChips } from './PlayerChips'
 import { CycleBanner } from './CycleBanner'
 import { useGlobalConfirm } from './GlobalProviders'
+import { TimerBroadcast } from '@/hooks/useRoom'
 
 interface HostPanelProps {
   room: SerializedRoom
@@ -20,6 +21,7 @@ interface HostPanelProps {
   onSetCupidLovers: (playerIds: number[]) => Promise<void>
   onWitchHeal: (playerId: number) => Promise<void>
   onWitchPoison: (playerId: number) => Promise<void>
+  broadcastTimer: (state: TimerBroadcast) => void
 }
 
 export function HostPanel({
@@ -28,15 +30,45 @@ export function HostPanel({
   onOpenVoting, onCloseVoting, onEliminate,
   onMarkKill, onMarkProtect,
   onSetCupidLovers, onWitchHeal, onWitchPoison,
+  broadcastTimer,
 }: HostPanelProps) {
   const { open: confirm } = useGlobalConfirm()
   const [cupidSel, setCupidSel] = useState<number[]>([])
   const [timerSecs, setTimerSecs] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const timerSecsRef = useRef(0)
 
-  const timerStart = () => { if (timerRef.current) return; timerRef.current = setInterval(() => setTimerSecs(s => s + 1), 1000) }
-  const timerPause = () => { if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null } }
-  const timerReset = () => { timerPause(); setTimerSecs(0) }
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }
+
+  const timerStart = () => {
+    if (timerRef.current) return
+    const startedAt = Date.now()
+    broadcastTimer({ action: 'start', startedAt, elapsedSecs: timerSecsRef.current })
+    timerRef.current = setInterval(() => {
+      setTimerSecs(s => {
+        timerSecsRef.current = s + 1
+        return s + 1
+      })
+    }, 1000)
+  }
+
+  const timerPause = () => {
+    stopTimer()
+    broadcastTimer({ action: 'pause', startedAt: 0, elapsedSecs: timerSecsRef.current })
+  }
+
+  const timerReset = () => {
+    stopTimer()
+    setTimerSecs(0)
+    timerSecsRef.current = 0
+    broadcastTimer({ action: 'reset', startedAt: 0, elapsedSecs: 0 })
+  }
+
   const timerFmt = () => String(Math.floor(timerSecs / 60)).padStart(2, '0') + ':' + String(timerSecs % 60).padStart(2, '0')
 
   const isAssigning = room.status === 'assigning'

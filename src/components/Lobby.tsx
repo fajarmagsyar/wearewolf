@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { SerializedRoom } from '@/lib/types'
 import { t, Locale } from '@/lib/i18n'
 import { PlayerChips } from './PlayerChips'
@@ -19,14 +20,25 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
   const playerCount = room.playerCount
   const canDeal = totalRoles === playerCount && playerCount >= 3
 
+  const [shareUrl, setShareUrl] = useState('')
+  useEffect(() => {
+    setShareUrl(`${window.location.origin}/join/${room.code}`)
+  }, [room.code])
+
   const copyCode = () => {
     navigator.clipboard?.writeText(room.code)
     window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
   }
 
-  const copyLink = () => {
-    const url = `${window.location.origin}/join/${room.code}`
-    navigator.clipboard?.writeText(url)
+  const shareLink = async () => {
+    if (!shareUrl) return
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "WE'RE WOLF", text: `Join room ${room.code}!`, url: shareUrl })
+        return
+      } catch {}
+    }
+    navigator.clipboard?.writeText(shareUrl)
     window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
   }
 
@@ -47,7 +59,12 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
           {room.code}
         </div>
         <div className="muted mt" style={{ fontSize: '.8rem' }}>{t('ui.tap_to_copy', locale)}</div>
-        <button className="btn sm paper mt" onClick={copyLink} style={{ marginTop: 12 }}>
+        {shareUrl && (
+          <div style={{ marginTop: 12, fontSize: '.72rem', color: 'var(--muted)', wordBreak: 'break-all', fontFamily: 'monospace', lineHeight: 1.4 }}>
+            {shareUrl}
+          </div>
+        )}
+        <button className="btn sm paper mt" onClick={shareLink} style={{ marginTop: 10 }}>
           🔗 {t('ui.share', locale)} Link
         </button>
       </div>

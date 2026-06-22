@@ -2,22 +2,29 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { SerializedRoom } from '@/lib/types'
 import { supabase } from '@/lib/supabase/client'
 
+export interface TimerBroadcast {
+  action: 'start' | 'pause' | 'reset'
+  startedAt: number
+  elapsedSecs: number
+}
+
 interface UseRoomReturn {
   data: SerializedRoom | null
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
   setData: (data: SerializedRoom) => void
+  broadcastTimer: (state: TimerBroadcast) => void
+  timerBroadcast: TimerBroadcast | null
 }
 
 export function useRoom(code: string): UseRoomReturn {
   const [data, setDataRaw] = useState<SerializedRoom | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [timerBroadcast, setTimerBroadcast] = useState<TimerBroadcast | null>(null)
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
 
-  // Only accept updates that are at least as recent as current state,
-  // preventing stale realtime-triggered fetches from overwriting newer data.
   const setData = useCallback((newData: SerializedRoom) => {
     setDataRaw(prev => {
       if (!prev || newData.stateVersion >= prev.stateVersion) return newData
@@ -51,21 +58,12 @@ export function useRoom(code: string): UseRoomReturn {
 
     const channel = supabase
       .channel(`room:${code}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'rooms', filter: `code=eq.${code}` },
-        () => fetchRoom()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'room_players' },
-        () => fetchRoom()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'room_roles' },
-        () => fetchRoom()
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `code=eq.${code}` }, () => fetchRoom())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_players' }, () => fetchRoom())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_roles' }, () => fetchRoom())
+      .on('broadcast', { event: 'timer' }, ({ payload }) => {
+        setTimerBroadcast(payload as TimerBroadcast)
+      })
       .subscribe()
 
     channelRef.current = channel
@@ -76,5 +74,9 @@ export function useRoom(code: string): UseRoomReturn {
     }
   }, [code, fetchRoom])
 
-  return { data, loading, error, refresh: fetchRoom, setData }
+  const broadcastTimer = useCallback((state: TimerBroadcast) => {
+    channelRef.current?.send({ type: 'broadcast', event: 'timer', payload: state })
+  }, [])
+
+  return { data, loading, error, refresh: fetchRoom, setData, broadcastTimer, timerBroadcast }
 }

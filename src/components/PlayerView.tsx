@@ -1,31 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SerializedRoom } from '@/lib/types'
 import { t, Locale } from '@/lib/i18n'
 import { CycleBanner } from './CycleBanner'
 import { useGlobalConfirm } from './GlobalProviders'
+import { TimerBroadcast } from '@/hooks/useRoom'
 
 interface PlayerViewProps {
   room: SerializedRoom
   locale: Locale
   onVote: (playerId: number) => Promise<void>
   onPeek: () => Promise<void>
+  timerBroadcast: TimerBroadcast | null
 }
 
-export function PlayerView({ room, locale, onVote, onPeek }: PlayerViewProps) {
+export function PlayerView({ room, locale, onVote, onPeek, timerBroadcast }: PlayerViewProps) {
   const { open: confirm } = useGlobalConfirm()
   const [flipped, setFlipped] = useState(false)
   const [peeked, setPeeked] = useState(false)
+  const [timerDisplay, setTimerDisplay] = useState(0)
+  const playerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const self = room.players.find(p => p.isSelf)
   const isAssigning = room.status === 'assigning'
   const isPlaying = room.status === 'playing'
 
-  // Hide card when game transitions from assigning to playing
   useEffect(() => {
     if (isPlaying) setFlipped(false)
   }, [isPlaying])
+
+  useEffect(() => {
+    if (!timerBroadcast) return
+    if (playerTimerRef.current) {
+      clearInterval(playerTimerRef.current)
+      playerTimerRef.current = null
+    }
+    if (timerBroadcast.action === 'reset') {
+      setTimerDisplay(0)
+    } else if (timerBroadcast.action === 'pause') {
+      setTimerDisplay(timerBroadcast.elapsedSecs)
+    } else if (timerBroadcast.action === 'start') {
+      const offset = Math.floor((Date.now() - timerBroadcast.startedAt) / 1000)
+      const initial = timerBroadcast.elapsedSecs + offset
+      setTimerDisplay(initial)
+      playerTimerRef.current = setInterval(() => setTimerDisplay(s => s + 1), 1000)
+    }
+    return () => {
+      if (playerTimerRef.current) clearInterval(playerTimerRef.current)
+    }
+  }, [timerBroadcast])
 
   const isAlive = self?.isAlive ?? true
   const isVoting = room.settings.votingOpen && isAlive
@@ -41,7 +65,6 @@ export function PlayerView({ room, locale, onVote, onPeek }: PlayerViewProps) {
       ? t('ui.team_neutral', locale)
       : t('ui.team_good', locale)
 
-  // During assigning: purely visual flip, no API call needed
   const handleCardClick = () => {
     if (!role) return
     setFlipped(f => !f)
@@ -59,6 +82,9 @@ export function PlayerView({ room, locale, onVote, onPeek }: PlayerViewProps) {
       if (!peeked) { setPeeked(true); await onPeek() }
     }
   }
+
+  const timerFmt = (secs: number) =>
+    String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0')
 
   const CardFront = () => role ? (
     <>
@@ -85,7 +111,30 @@ export function PlayerView({ room, locale, onVote, onPeek }: PlayerViewProps) {
             </div>
           </div>
 
+          {/* Role indicator — always visible, no card reveal needed */}
+          <div className="panel flat spread" style={{ padding: '10px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="muted" style={{ fontSize: '.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
+                {t('ui.your_role', locale)}
+              </span>
+              <span className={`tag ${teamColor}`} style={{ boxShadow: 'none' }}>{role.nameEn}</span>
+              <span className="tag ghost" style={{ boxShadow: 'none', fontSize: '.6rem' }}>{teamLabel}</span>
+            </div>
+          </div>
+
           <CycleBanner phase={room.phase} dayNumber={room.dayNumber} locale={locale} />
+
+          {/* Timer — shown when host has started it */}
+          {room.phase === 'day' && timerBroadcast && timerBroadcast.action !== 'reset' && (
+            <div className="panel center">
+              <div className="muted" style={{ fontSize: '.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: 4 }}>
+                {t('ui.timer', locale)}
+              </div>
+              <div style={{ fontFamily: 'var(--font)', fontSize: '2.8rem', letterSpacing: '.05em' }}>
+                {timerFmt(timerDisplay)}
+              </div>
+            </div>
+          )}
 
           {/* Voting panel */}
           {isVoting && (
