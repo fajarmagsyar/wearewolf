@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WE'RE WOLF
 
-## Getting Started
+<img src="https://raw.githubusercontent.com/fajarmagsyar/wearewolf/main/public/favicon.svg" width="80" alt="WE'RE WOLF icon" />
 
-First, run the development server:
+A Werewolf companion app. Yes, the name's a pun ha ha.
+
+===
+
+Built this on a sunday cause I was bored and remembered the last time i played Werewolf offline... it was a mess. Someone always peeks at cards they shouldn't, the narrator forgets who's dead, half the group argues about the rules. So I made this instead.
+
+The host creates a room, everyone joins on their own phone, cards get dealt digitally, and the app handles the night/day cycle with narration. No physical cards needed, no one cheating by opening their eyes early.
+
+## What it does
+
+- Host creates a room, gets a shareable code
+- Players join with the code + a display name (no account needed)
+- Host deals roles, each player sees their own card on their device
+- Night and day phases with narration
+- Werewolf, Seer, Doctor, Tanner, the usual roles
+- Vote to eliminate during day phase
+- Works in Indonesian too (we needed it)
+
+## Stack
+
+- Next.js (App Router)
+- Supabase (auth + realtime)
+- Deployed on Vercel
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You'll need a Supabase project and these env vars:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then open [localhost:3000](http://localhost:3000).
 
-## Learn More
+===
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Made out of spite so I don’t have to write everything down when i’m the narrator
