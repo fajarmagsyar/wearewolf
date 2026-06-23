@@ -14,7 +14,12 @@ interface TableViewProps {
 
 export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
   const [timerDisplay, setTimerDisplay] = useState(0)
+  const [joinUrl, setJoinUrl] = useState('')
   const playerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    setJoinUrl(`${window.location.origin}/join/${room.code}`)
+  }, [room.code])
 
   useEffect(() => {
     if (!timerBroadcast) return
@@ -58,12 +63,6 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
 
   return (
     <div className="tableview">
-      {/* Room Code - Large for easy scanning */}
-      <div className="tv-roomcode">
-        <div className="tv-roomcode-label">{t('ui.room_code', locale)}</div>
-        <div className="tv-roomcode-value">{room.code}</div>
-      </div>
-
       {/* Phase Banner */}
       {isPlaying && (
         <CycleBanner phase={room.phase} dayNumber={room.dayNumber} locale={locale} />
@@ -77,21 +76,18 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
         </div>
       )}
 
-      {/* Lobby View */}
-      {isLobby && (
-        <div className="tv-section">
-          <div className="tv-section-title">{t('ui.waiting_for_players', locale)}</div>
-          <div className="tv-player-grid">
-            {humanPlayers.map(p => (
-              <div key={p.id} className="tv-player-chip">
-                <div className="tv-player-name">{p.displayName}</div>
-                {p.seatNo !== null && <div className="tv-player-seat">#{p.seatNo}</div>}
-              </div>
-            ))}
-          </div>
-          {humanPlayers.length < 3 && (
-            <div className="tv-hint">{t('ui.need_players', locale)}</div>
-          )}
+      {/* Lobby View - QR Code to join */}
+      {isLobby && joinUrl && (
+        <div className="tv-section tv-qr">
+          <div className="tv-qr-label">{t('ui.scan_to_join', locale)}</div>
+          <img
+            className="tv-qr-image"
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(joinUrl)}&bgcolor=ffffff&color=111111`}
+            alt="QR Code to join"
+            width={260}
+            height={260}
+          />
+          <div className="tv-qr-url">{joinUrl}</div>
         </div>
       )}
 

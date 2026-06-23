@@ -481,6 +481,32 @@ a { color: var(--blue); font-weight: 800; text-decoration: none; }
     margin-top: 16px;
 }
 
+.tv-qr {
+    text-align: center;
+    padding: 32px 24px;
+}
+
+.tv-qr-label {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+
+.tv-qr-image {
+    border: var(--bd);
+    box-shadow: var(--shadow);
+    display: block;
+    margin: 0 auto 16px;
+}
+
+.tv-qr-url {
+    font-family: monospace;
+    font-size: .85rem;
+    color: var(--muted);
+    word-break: break-all;
+}
+
 .tv-voting {
     border-color: var(--red);
 }
