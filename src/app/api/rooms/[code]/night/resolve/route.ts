@@ -106,8 +106,8 @@ export async function POST(
       .update({ marked_for_death: false, is_protected: false })
       .eq('room_id', room.id)
 
-    // Win condition — use alive players AFTER kills (players pre-kill, minus newly dead)
-    const aliveAfter = players.filter(p => p.is_alive && !dead.some(d => d.id === p.id))
+    // Win condition — use alive players AFTER kills, excluding table views
+    const aliveAfter = players.filter(p => p.is_alive && !dead.some(d => d.id === p.id) && !p.is_table_view)
 
     const tannerDied = dead.some(d => d.roleEn === 'Tanner')
     let winner: string | null = null

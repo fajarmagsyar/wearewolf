@@ -78,7 +78,7 @@ export default function RoomPage() {
 
   const handleSuggest = useCallback(async () => {
     if (!data) return
-    const suggestions = getSuggestedRoles(data.players.length)
+    const suggestions = getSuggestedRoles(data.players.filter(p => !p.isTableView).length)
     for (const { roleId, qty } of suggestions) {
       await apiCall(`/api/rooms/${code}/roles`, { roleId, qty })
     }

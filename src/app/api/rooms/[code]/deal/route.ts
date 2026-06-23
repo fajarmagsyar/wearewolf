@@ -30,11 +30,12 @@ export async function POST(
       return NextResponse.json({ ok: false, error: 'Game already started' }, { status: 400 })
     }
 
-    // Get players count
+    // Get players count (exclude table view guests)
     const { data: players, error: playersError } = await supabase
       .from('room_players')
       .select('id')
       .eq('room_id', room.id)
+      .eq('is_table_view', false)
 
     if (playersError) {
       return NextResponse.json({ ok: false, error: playersError.message }, { status: 500 })
@@ -91,11 +92,12 @@ export async function POST(
       ;[rolePool[i], rolePool[j]] = [rolePool[j], rolePool[i]]
     }
 
-    // Assign roles
+    // Assign roles (only to human players, not table views)
     await supabase
       .from('room_players')
-      .update({ is_alive: true, is_protected: false, marked_for_death: false, revealed: false, voted_for_id: null })
+      .update({ is_alive: true, is_protected: false, marked_for_death: false, revealed: false, voted_for_id: null, role_id: null })
       .eq('room_id', room.id)
+      .eq('is_table_view', false)
 
     for (let i = 0; i < players!.length; i++) {
       await supabase

@@ -88,12 +88,13 @@ export async function POST(
       }
     }
 
-    // Win condition — re-fetch alive players after kills
+    // Win condition — re-fetch alive players after kills (exclude table views)
     const { data: alivePlayers } = await supabase
       .from('room_players')
       .select('role:roles(faction)')
       .eq('room_id', room.id)
       .eq('is_alive', true)
+      .eq('is_table_view', false)
 
     const targetRole = target.role as unknown as { role_key: string; name_en: string; id: number } | null
     let tannerDied = targetRole?.role_key === 'tanner'

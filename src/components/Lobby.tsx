@@ -17,6 +17,7 @@ interface LobbyProps {
 
 export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, availableRoles }: LobbyProps) {
   const totalRoles = room.roles?.reduce((sum, r) => sum + r.count, 0) || 0
+  const humanPlayers = room.players.filter(p => !p.isTableView)
   const playerCount = room.playerCount
   const canDeal = totalRoles === playerCount && playerCount >= 3
 
@@ -72,10 +73,10 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
       <div className="panel">
         <div className="panel-title">
           <span className="bar" />
-          <h2>{t('ui.players', locale)} ({room.players.length})</h2>
+          <h2>{t('ui.players', locale)} ({humanPlayers.length})</h2>
         </div>
-        {room.players.length > 0 ? (
-          <PlayerChips players={room.players} isHost={room.isHost} mode="view" locale={locale} onKick={room.isHost ? onKick : undefined} />
+        {humanPlayers.length > 0 ? (
+          <PlayerChips players={humanPlayers} isHost={room.isHost} mode="view" locale={locale} onKick={room.isHost ? onKick : undefined} />
         ) : (
           <p className="muted">{t('ui.waiting_host', locale)}</p>
         )}
