@@ -145,7 +145,7 @@ export function PlayerView({ room, locale, onVote, onPeek, timerBroadcast }: Pla
               </div>
               <p className="muted mb">{t('ui.cast_vote', locale)}</p>
               <div className="targets">
-                {room.players.filter(p => p.isAlive && !p.isSelf).map(p => (
+                {room.players.filter(p => p.isAlive && !p.isSelf && !p.isTableView).map(p => (
                   <button
                     key={p.id}
                     className={`target ${p.myVote ? 'sel' : ''}`}

@@ -86,7 +86,7 @@ export function HostPanel({
             <h2>{t('ui.tracking', locale)}</h2>
           </div>
           <p className="muted mb">{t('ui.players_start', locale)}</p>
-          <PlayerChips players={room.players} isHost mode="view" locale={locale} />
+          <PlayerChips players={room.players.filter(p => !p.isTableView)} isHost mode="view" locale={locale} />
         </div>
         <div className="panel center">
           <button className="btn block red" onClick={onStartNight}>
@@ -234,7 +234,7 @@ export function HostPanel({
                 </p>
                 {!nt.witchPoisonUsed ? (
                   <div className="players" style={{ gap: '6px' }}>
-                    {room.players.filter(p => p.isAlive).map(p => (
+                {room.players.filter(p => p.isAlive && !p.isTableView).map(p => (
                       <button
                         key={p.id}
                         className="btn sm paper"
@@ -272,7 +272,7 @@ export function HostPanel({
         </div>
         <p className="muted mb">{t('ui.alive', locale)}: {room.aliveCount} / {room.playerCount}</p>
         <PlayerChips
-          players={room.players}
+          players={room.players.filter(p => !p.isTableView)}
           isHost
           mode={room.phase === 'night' ? 'night' : 'day'}
           locale={locale}

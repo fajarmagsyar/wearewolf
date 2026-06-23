@@ -32,7 +32,7 @@ export function OverScreen({ room, locale, onRestart, onBack }: OverScreenProps)
           <span className="bar" />
           <h2>{t('ui.players', locale)}</h2>
         </div>
-        <PlayerChips players={room.players} isHost={room.isHost} mode="view" locale={locale} />
+        <PlayerChips players={room.players.filter(p => !p.isTableView)} isHost={room.isHost} mode="view" locale={locale} />
       </div>
 
       {onRestart && room.isHost && (

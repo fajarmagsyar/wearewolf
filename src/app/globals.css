@@ -334,10 +334,23 @@ a { color: var(--blue); font-weight: 800; text-decoration: none; }
 
 .tv-roomcode {
     text-align: center;
-    padding: 20px;
-    background: var(--ink);
+    padding: 24px;
+    background: linear-gradient(135deg, var(--ink) 0%, #1a1a2e 100%);
     border: var(--bd);
     box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.tv-roomcode::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 204, 0, 0.08) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .tv-roomcode-label {
