@@ -79,7 +79,7 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
       {/* Lobby View - QR Code to join */}
       {isLobby && joinUrl && (
         <div className="tv-section tv-qr">
-          <div className="tv-qr-label">{t('ui.scan_to_join', locale)}</div>
+          <div className="muted mb" style={{ fontWeight: 800, textTransform: 'uppercase' }}>{t('ui.scan_to_join', locale)}</div>
           <img
             className="tv-qr-image"
             src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(joinUrl)}&bgcolor=ffffff&color=111111`}
