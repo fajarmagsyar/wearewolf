@@ -111,17 +111,6 @@ export function PlayerView({ room, locale, onVote, onPeek, timerBroadcast }: Pla
             </div>
           </div>
 
-          {/* Role indicator — always visible, no card reveal needed */}
-          <div className="panel flat spread" style={{ padding: '10px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="muted" style={{ fontSize: '.75rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                {t('ui.your_role', locale)}
-              </span>
-              <span className={`tag ${teamColor}`} style={{ boxShadow: 'none' }}>{role.nameEn}</span>
-              <span className="tag ghost" style={{ boxShadow: 'none', fontSize: '.6rem' }}>{teamLabel}</span>
-            </div>
-          </div>
-
           <CycleBanner phase={room.phase} dayNumber={room.dayNumber} locale={locale} />
 
           {/* Timer — shown when host has started it */}
