@@ -83,6 +83,7 @@ export interface SerializedPlayer {
   seatNo: number | null
   status: PlayerStatus
   isSelf: boolean
+  isTableView?: boolean
   role?: {
     name: string
     nameEn: string
@@ -128,6 +129,7 @@ export interface SerializedRoom {
   locale: string
   isHost: boolean
   selfPlayerId: number | null
+  isTableView: boolean
   settings: {
     nightResolved: boolean
     votingOpen: boolean

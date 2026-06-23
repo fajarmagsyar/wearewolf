@@ -144,6 +144,11 @@ const dictEn: Record<string, string> = {
   'ui.protected_last_night': 'protected last night',
   'ui.kick': 'Kick',
   'ui.kick_confirm': 'Kick {name} from the lobby?',
+  'ui.table_view': 'Table View',
+  'ui.table_view_hint': 'Display on TV/tablet for the group. Not counted as a player.',
+  'ui.player': 'Player',
+  'ui.waiting_for_players': 'Waiting for Players',
+  'ui.role_distribution': 'Role Distribution',
 }
 
 const dictId: Record<string, string> = {
@@ -285,4 +290,9 @@ const dictId: Record<string, string> = {
   'ui.protected_last_night': 'dilindungi semalam',
   'ui.kick': 'Keluarkan',
   'ui.kick_confirm': 'Keluarkan {name} dari lobi?',
+  'ui.table_view': 'Tampilan Meja',
+  'ui.table_view_hint': 'Tampilkan di TV/tablet untuk grup. Tidak dihitung sebagai pemain.',
+  'ui.player': 'Pemain',
+  'ui.waiting_for_players': 'Menunggu Pemain',
+  'ui.role_distribution': 'Distribusi Peran',
 }

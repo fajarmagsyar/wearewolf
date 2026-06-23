@@ -8,6 +8,7 @@ import { Header } from '@/components/Header'
 import { Lobby } from '@/components/Lobby'
 import { HostPanel } from '@/components/HostPanel'
 import { PlayerView } from '@/components/PlayerView'
+import { TableView } from '@/components/TableView'
 import { OverScreen } from '@/components/OverScreen'
 import { t, Locale } from '@/lib/i18n'
 
@@ -177,62 +178,83 @@ export default function RoomPage() {
 
   return (
     <div>
-      <Header
-        code={data.code}
-        phase={data.phase || 'day'}
-        dayNumber={data.dayNumber || 1}
-        isHost={data.isHost}
-        locale={locale}
-        onLeave={handleLeave}
-      />
-
-      {data.status === 'lobby' && (
-        <Lobby
-          room={data}
-          locale={locale}
-          onDeal={handleDeal}
-          onSetRole={handleSetRole}
-          onSuggest={handleSuggest}
-          onKick={handleKick}
-          availableRoles={availableRoles}
-        />
-      )}
-
-      {(data.status === 'assigning' || data.status === 'playing') && (
-        data.isHost ? (
-          <HostPanel
-            room={data}
+      {/* Table View - TV/tablet display mode */}
+      {data.isTableView ? (
+        <>
+          <Header
+            code={data.code}
+            phase={data.phase || 'day'}
+            dayNumber={data.dayNumber || 1}
+            isHost={false}
             locale={locale}
-            onStartNight={handleStartNight}
-            onResolveNight={handleResolveNight}
-            onOpenVoting={handleOpenVoting}
-            onCloseVoting={handleCloseVoting}
-            onEliminate={handleEliminate}
-            onMarkKill={handleMarkKill}
-            onMarkProtect={handleMarkProtect}
-            onSetCupidLovers={handleSetCupidLovers}
-            onWitchHeal={handleWitchHeal}
-            onWitchPoison={handleWitchPoison}
-            broadcastTimer={broadcastTimer}
+            onLeave={handleLeave}
           />
-        ) : (
-          <PlayerView
+          <TableView
             room={data}
             locale={locale}
-            onVote={handleVote}
-            onPeek={handlePeek}
             timerBroadcast={timerBroadcast}
           />
-        )
-      )}
+        </>
+      ) : (
+        <>
+          <Header
+            code={data.code}
+            phase={data.phase || 'day'}
+            dayNumber={data.dayNumber || 1}
+            isHost={data.isHost}
+            locale={locale}
+            onLeave={handleLeave}
+          />
 
-      {data.status === 'over' && (
-        <OverScreen
-          room={data}
-          locale={locale}
-          onRestart={data.isHost ? handleRestart : undefined}
-          onBack={() => router.push('/')}
-        />
+          {data.status === 'lobby' && (
+            <Lobby
+              room={data}
+              locale={locale}
+              onDeal={handleDeal}
+              onSetRole={handleSetRole}
+              onSuggest={handleSuggest}
+              onKick={handleKick}
+              availableRoles={availableRoles}
+            />
+          )}
+
+          {(data.status === 'assigning' || data.status === 'playing') && (
+            data.isHost ? (
+              <HostPanel
+                room={data}
+                locale={locale}
+                onStartNight={handleStartNight}
+                onResolveNight={handleResolveNight}
+                onOpenVoting={handleOpenVoting}
+                onCloseVoting={handleCloseVoting}
+                onEliminate={handleEliminate}
+                onMarkKill={handleMarkKill}
+                onMarkProtect={handleMarkProtect}
+                onSetCupidLovers={handleSetCupidLovers}
+                onWitchHeal={handleWitchHeal}
+                onWitchPoison={handleWitchPoison}
+                broadcastTimer={broadcastTimer}
+              />
+            ) : (
+              <PlayerView
+                room={data}
+                locale={locale}
+                onVote={handleVote}
+                onPeek={handlePeek}
+                timerBroadcast={timerBroadcast}
+              />
+            )
+          )}
+
+          {data.status === 'over' && (
+            <OverScreen
+              room={data}
+              locale={locale}
+              onRestart={data.isHost ? handleRestart : undefined}
+              onBack={() => router.push('/')}
+            />
+          )}
+        </>
       )}
     </div>
   )

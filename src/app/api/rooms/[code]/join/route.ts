@@ -10,7 +10,7 @@ export async function POST(
     const { code } = await params
     const supabase = await createClient()
     const body = await request.json()
-    const { displayName } = body as { displayName: string }
+    const { displayName, isTableView } = body as { displayName: string; isTableView?: boolean }
 
     if (!displayName || displayName.trim().length < 2) {
       return NextResponse.json({ ok: false, error: 'Display name required (min 2 chars)' }, { status: 400 })
@@ -39,8 +39,8 @@ export async function POST(
       guestToken = crypto.randomUUID()
     }
 
-    // Check if already joined
-    if (userId) {
+    // Check if already joined (skip for table view - multiple table views allowed)
+    if (userId && !isTableView) {
       const { data: existing } = await supabase
         .from('room_players')
         .select('id')
@@ -61,6 +61,7 @@ export async function POST(
         guest_token: guestToken,
         display_name: titleCase(displayName.trim()),
         is_alive: true,
+        is_table_view: isTableView || false,
       })
       .select()
       .single()

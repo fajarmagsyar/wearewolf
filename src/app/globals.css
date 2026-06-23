@@ -322,3 +322,261 @@ a { color: var(--blue); font-weight: 800; text-decoration: none; }
 @media (max-width: 560px) {
     .roomcode { letter-spacing: .08em; }
 }
+
+/* Table View - TV/tablet display mode */
+.tableview {
+    padding: 20px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tv-roomcode {
+    text-align: center;
+    padding: 20px;
+    background: var(--ink);
+    border: var(--bd);
+    box-shadow: var(--shadow-lg);
+}
+
+.tv-roomcode-label {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.tv-roomcode-value {
+    font-family: var(--font);
+    font-size: clamp(3rem, 15vw, 6rem);
+    letter-spacing: .2em;
+    color: var(--yellow);
+}
+
+.tv-timer {
+    text-align: center;
+    padding: 20px;
+    background: var(--panel);
+    border: var(--bd);
+    box-shadow: var(--shadow);
+}
+
+.tv-timer-label {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.tv-timer-value {
+    font-family: var(--font);
+    font-size: clamp(3rem, 12vw, 5rem);
+    letter-spacing: .1em;
+}
+
+.tv-section {
+    background: var(--panel);
+    border: var(--bd);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.tv-section-title {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tv-section-title::before {
+    content: '';
+    width: 18px;
+    height: 26px;
+    background: var(--blue);
+    border: 2px solid var(--ink);
+    display: inline-block;
+}
+
+.tv-player-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.tv-player-chip {
+    border: var(--bd);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    position: relative;
+    background: #fff;
+    text-align: center;
+}
+
+.tv-player-chip.alive {
+    background: #fff;
+}
+
+.tv-player-chip.dead {
+    background: repeating-linear-gradient(45deg, #eee, #eee 8px, #e2e2e2 8px, #e2e2e2 16px);
+    opacity: 0.7;
+}
+
+.tv-player-name {
+    font-family: var(--font);
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.tv-player-seat {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--blue);
+    color: #fff;
+    font-family: var(--font);
+    font-size: .8rem;
+    padding: 4px 8px;
+    border-left: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+}
+
+.tv-player-votes {
+    font-family: var(--font);
+    font-size: .9rem;
+    color: var(--red);
+    font-weight: 800;
+}
+
+.tv-player-status {
+    font-family: var(--font);
+    font-size: .8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.tv-hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: .9rem;
+    margin-top: 16px;
+}
+
+.tv-voting {
+    border-color: var(--red);
+}
+
+.tv-voting .tv-section-title::before {
+    background: var(--red);
+}
+
+.tv-vote-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.tv-vote-item {
+    border: var(--bd);
+    box-shadow: var(--shadow-sm);
+    padding: 16px;
+    text-align: center;
+    background: #fff;
+}
+
+.tv-vote-name {
+    font-family: var(--font);
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.tv-vote-count {
+    font-family: var(--font);
+    font-size: 2rem;
+    color: var(--red);
+}
+
+.tv-roles .tv-section-title::before {
+    background: var(--yellow);
+}
+
+.tv-role-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tv-role-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: var(--bd);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 14px;
+    background: #fff;
+}
+
+.tv-role-faction {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+}
+
+.tv-role-faction.village { background: var(--blue); }
+.tv-role-faction.werewolf { background: var(--red); }
+.tv-role-faction.neutral { background: var(--yellow); }
+
+.tv-role-name {
+    font-family: var(--font);
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.tv-role-count {
+    font-family: var(--font);
+    font-size: .9rem;
+    color: var(--muted);
+}
+
+.tv-gameover {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.tv-gameover-label {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+}
+
+.tv-gameover-winner {
+    font-family: var(--font);
+    text-transform: uppercase;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    border: var(--bd);
+    box-shadow: var(--shadow-lg);
+    padding: 24px;
+}
+
+.tv-gameover-winner.village { background: var(--green); color: #fff; }
+.tv-gameover-winner.werewolf { background: var(--red); color: #fff; }
+.tv-gameover-winner.tanner { background: var(--purple); color: #fff; }
+
+@media (min-width: 768px) {
+    .tv-player-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    .tv-vote-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}

@@ -30,6 +30,7 @@ interface PlayerRow {
   marked_for_death: boolean
   revealed: boolean
   voted_for_id: number | null
+  is_table_view: boolean
   role: {
     id: number
     role_key: string
@@ -134,6 +135,7 @@ export async function serializeRoom(code: string, selfPlayerId: number | null, i
       seatNo: p.seat_no,
       status: (p.is_alive ? 'alive' : 'dead') as PlayerStatus,
       isSelf: p.id === selfPlayerId,
+      isTableView: p.is_table_view || false,
       role,
       votes: voteCounts[p.id] || 0,
       myVote: selfPlayerId !== null && playerList.find(sp => sp.id === selfPlayerId)?.voted_for_id === p.id,
@@ -160,6 +162,10 @@ export async function serializeRoom(code: string, selfPlayerId: number | null, i
     ? renderNarration(settings['narr'] as NarrationData, locale)
     : null
 
+  // Determine if current viewer is a table view device
+  const currentViewer = selfPlayerId !== null ? playerList.find(p => p.id === selfPlayerId) : null
+  const isTableView = currentViewer?.is_table_view || false
+
   return {
     id: roomRow.id,
     code: roomRow.code,
@@ -169,6 +175,7 @@ export async function serializeRoom(code: string, selfPlayerId: number | null, i
     locale: roomRow.locale,
     isHost,
     selfPlayerId,
+    isTableView,
     settings: {
       nightResolved,
       votingOpen: roomRow.voting_open,
@@ -178,7 +185,7 @@ export async function serializeRoom(code: string, selfPlayerId: number | null, i
     roles: serializedRoles,
     winner: roomRow.winner as SerializedRoom['winner'],
     stateVersion: roomRow.state_version,
-    playerCount: playerList.length,
+    playerCount: playerList.filter(p => !p.is_table_view).length,
     aliveCount,
     nightTools,
   }
