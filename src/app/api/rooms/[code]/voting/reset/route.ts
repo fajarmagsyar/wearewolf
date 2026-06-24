@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom } from '@/lib/serialize'
 
 export async function POST(
   request: Request,
@@ -39,9 +38,7 @@ export async function POST(
       .from('rooms')
       .update({ voting_open: false, state_version: room.state_version + 1 })
       .eq('id', room.id)
-
-    const data = await serializeRoom(code, null, true)
-    return NextResponse.json({ ok: true, data })
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error resetting votes:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })

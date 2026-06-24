@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom } from '@/lib/serialize'
 
 export async function POST(
   request: Request,
@@ -57,9 +56,7 @@ export async function POST(
       .from('room_players')
       .update({ marked_for_death: true })
       .eq('id', playerId)
-
-    const data = await serializeRoom(code, null, true)
-    return NextResponse.json({ ok: true, data })
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error marking kill:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })

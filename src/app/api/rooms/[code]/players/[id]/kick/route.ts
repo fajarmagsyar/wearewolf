@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom } from '@/lib/serialize'
 
 export async function POST(
   _request: Request,
@@ -41,9 +40,7 @@ export async function POST(
     if (error) {
       return NextResponse.json({ ok: false, error: 'Player not found' }, { status: 404 })
     }
-
-    const data = await serializeRoom(code, null, true)
-    return NextResponse.json({ ok: true, data })
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error kicking player:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })

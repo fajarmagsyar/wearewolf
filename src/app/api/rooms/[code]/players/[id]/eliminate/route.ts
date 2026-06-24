@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom } from '@/lib/serialize'
 
 export async function POST(
   request: Request,
@@ -166,9 +165,7 @@ export async function POST(
         winner,
       })
       .eq('id', room.id)
-
-    const data = await serializeRoom(code, null, true)
-    return NextResponse.json({ ok: true, data })
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error eliminating player:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })

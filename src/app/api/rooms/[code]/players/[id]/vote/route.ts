@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom, findPlayerByCode } from '@/lib/serialize'
+import { findPlayerByCode } from '@/lib/serialize'
 
 export async function POST(
   request: Request,
@@ -56,9 +56,7 @@ export async function POST(
       .from('room_players')
       .update({ voted_for_id: playerId })
       .eq('id', playerInfo.id)
-
-    const data = await serializeRoom(code, playerInfo.id, playerInfo.isHost)
-    return NextResponse.json({ ok: true, data })
+    return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error voting:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })
