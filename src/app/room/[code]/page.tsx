@@ -94,6 +94,7 @@ export default function RoomPage() {
   const handleResolveNight = useCallback(() => apiCall(`/api/rooms/${code}/night/resolve`), [apiCall, code])
   const handleOpenVoting = useCallback(() => apiCall(`/api/rooms/${code}/voting/open`), [apiCall, code])
   const handleCloseVoting = useCallback(() => apiCall(`/api/rooms/${code}/voting/close`), [apiCall, code])
+  const handleClearVotes = useCallback(() => apiCall(`/api/rooms/${code}/voting/reset`), [apiCall, code])
   const handleVote = useCallback((playerId: number) => apiCall(`/api/rooms/${code}/players/${playerId}/vote`), [apiCall, code])
   const handlePeek = useCallback(() => apiCall(`/api/rooms/${code}/players/peek`), [apiCall, code])
   const handleMarkKill = useCallback((playerId: number) => apiCall(`/api/rooms/${code}/players/${playerId}/kill`), [apiCall, code])
@@ -227,12 +228,14 @@ export default function RoomPage() {
                 onResolveNight={handleResolveNight}
                 onOpenVoting={handleOpenVoting}
                 onCloseVoting={handleCloseVoting}
+                onClearVotes={handleClearVotes}
                 onEliminate={handleEliminate}
                 onMarkKill={handleMarkKill}
                 onMarkProtect={handleMarkProtect}
                 onSetCupidLovers={handleSetCupidLovers}
                 onWitchHeal={handleWitchHeal}
                 onWitchPoison={handleWitchPoison}
+                onResetGame={handleRestart}
                 broadcastTimer={broadcastTimer}
               />
             ) : (

@@ -32,6 +32,12 @@ export async function POST(
 
     const newDay = room.day_number + 1
 
+    // Clear all votes when transitioning to night
+    await supabase
+      .from('room_players')
+      .update({ voted_for_id: null })
+      .eq('room_id', room.id)
+
     await supabase
       .from('rooms')
       .update({

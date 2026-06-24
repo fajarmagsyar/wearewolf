@@ -150,6 +150,10 @@ const dictEn: Record<string, string> = {
   'ui.player': 'Player',
   'ui.waiting_for_players': 'Waiting for Players',
   'ui.role_distribution': 'Role Distribution',
+  'ui.reset_game': 'Reset Game',
+  'ui.reset_game_confirm': 'Reset game to lobby? All progress will be lost.',
+  'ui.clear_votes': 'Clear Votes',
+  'ui.clear_votes_confirm': 'Clear all votes?',
 }
 
 const dictId: Record<string, string> = {
@@ -297,4 +301,8 @@ const dictId: Record<string, string> = {
   'ui.player': 'Pemain',
   'ui.waiting_for_players': 'Menunggu Pemain',
   'ui.role_distribution': 'Distribusi Peran',
+  'ui.reset_game': 'Reset Permainan',
+  'ui.reset_game_confirm': 'Reset permainan ke lobi? Semua kemajuan akan hilang.',
+  'ui.clear_votes': 'Hapus Vote',
+  'ui.clear_votes_confirm': 'Hapus semua vote?',
 }

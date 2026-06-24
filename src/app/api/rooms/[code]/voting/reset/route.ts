@@ -26,41 +26,24 @@ export async function POST(
       return NextResponse.json({ ok: false, error: 'Room not found or not host' }, { status: 404 })
     }
 
-    if (room.status === 'lobby') {
-      return NextResponse.json({ ok: false, error: 'Already in lobby' }, { status: 400 })
+    if (room.status !== 'playing' || room.phase !== 'day') {
+      return NextResponse.json({ ok: false, error: 'Not in day phase' }, { status: 400 })
     }
 
-    // Reset room to lobby
-    await supabase
-      .from('rooms')
-      .update({
-        status: 'lobby',
-        phase: 'night',
-        day_number: 0,
-        voting_open: false,
-        settings: {},
-        winner: null,
-        state_version: room.state_version + 1,
-      })
-      .eq('id', room.id)
-
-    // Reset players (remove roles, clear flags, keep them in room)
     await supabase
       .from('room_players')
-      .update({
-        role_id: null,
-        is_alive: true,
-        is_protected: false,
-        marked_for_death: false,
-        revealed: false,
-        voted_for_id: null,
-      })
+      .update({ voted_for_id: null })
       .eq('room_id', room.id)
+
+    await supabase
+      .from('rooms')
+      .update({ voting_open: false, state_version: room.state_version + 1 })
+      .eq('id', room.id)
 
     const data = await serializeRoom(code, null, true)
     return NextResponse.json({ ok: true, data })
   } catch (error) {
-    console.error('Error restarting game:', error)
+    console.error('Error resetting votes:', error)
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 })
   }
 }

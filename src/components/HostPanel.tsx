@@ -15,21 +15,24 @@ interface HostPanelProps {
   onResolveNight: () => Promise<void>
   onOpenVoting: () => Promise<void>
   onCloseVoting: () => Promise<void>
+  onClearVotes: () => Promise<void>
   onEliminate: (playerId: number) => Promise<void>
   onMarkKill: (playerId: number) => Promise<void>
   onMarkProtect: (playerId: number) => Promise<void>
   onSetCupidLovers: (playerIds: number[]) => Promise<void>
   onWitchHeal: (playerId: number) => Promise<void>
   onWitchPoison: (playerId: number) => Promise<void>
+  onResetGame: () => Promise<void>
   broadcastTimer: (state: TimerBroadcast) => void
 }
 
 export function HostPanel({
   room, locale,
   onStartNight, onResolveNight,
-  onOpenVoting, onCloseVoting, onEliminate,
+  onOpenVoting, onCloseVoting, onClearVotes, onEliminate,
   onMarkKill, onMarkProtect,
   onSetCupidLovers, onWitchHeal, onWitchPoison,
+  onResetGame,
   broadcastTimer,
 }: HostPanelProps) {
   const { open: confirm } = useGlobalConfirm()
@@ -128,6 +131,7 @@ export function HostPanel({
             ) : (
               <button className="btn block green mb" onClick={onOpenVoting}>{t('ui.start_voting', locale)}</button>
             )}
+            <button className="btn block paper mb" onClick={onClearVotes}>{t('ui.clear_votes', locale)}</button>
             <button className="btn block blue" onClick={onStartNight}>{t('ui.to_night', locale)}</button>
           </>
         )}
@@ -301,6 +305,23 @@ export function HostPanel({
           </button>
         </div>
       )}
+
+      {/* Reset game — always visible during active game */}
+      <div className="panel center">
+        <button
+          className="btn block red"
+          onClick={async () => {
+            const ok = await confirm({
+              message: t('ui.reset_game_confirm', locale),
+              yes: t('ui.reset_game', locale),
+              no: t('ui.cancel', locale),
+            })
+            if (ok) onResetGame()
+          }}
+        >
+          {t('ui.reset_game', locale)}
+        </button>
+      </div>
     </>
   )
 }
