@@ -18,7 +18,7 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
   const playerTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    setJoinUrl(`${window.location.origin}/join/${room.code}`)
+    setJoinUrl(`${window.location.origin}/table/${room.code}`)
   }, [room.code])
 
   useEffect(() => {
@@ -47,7 +47,6 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
 
   const humanPlayers = room.players.filter(p => !p.isTableView)
   const alivePlayers = humanPlayers.filter(p => p.isAlive)
-  const deadPlayers = humanPlayers.filter(p => !p.isAlive)
 
   // Role distribution summary (counts only, no assignments)
   const roleCounts: Record<string, { count: number; faction: string }> = {}
@@ -105,13 +104,6 @@ export function TableView({ room, locale, timerBroadcast }: TableViewProps) {
                 {p.votes > 0 && (
                   <div className="tv-player-votes">{p.votes} {t('ui.votes_suffix', locale)}</div>
                 )}
-              </div>
-            ))}
-            {deadPlayers.map(p => (
-              <div key={p.id} className="tv-player-chip dead">
-                {p.seatNo !== null && <div className="tv-player-seat">#{p.seatNo}</div>}
-                <div className="tv-player-name">{p.displayName}</div>
-                <div className="tv-player-status">{t('ui.dead', locale)}</div>
               </div>
             ))}
           </div>

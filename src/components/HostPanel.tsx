@@ -309,7 +309,7 @@ export function HostPanel({
       {/* Reset game — always visible during active game */}
       <div className="panel center">
         <button
-          className="btn block red"
+          className="btn sm paper"
           onClick={async () => {
             const ok = await confirm({
               message: t('ui.reset_game_confirm', locale),

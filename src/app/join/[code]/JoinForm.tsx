@@ -13,7 +13,6 @@ export function JoinForm({ code }: { code: string }) {
   const [displayName, setDisplayName] = useState('')
   const [loading, setLoading] = useState(false)
   const [locale, setLocale] = useState<Locale>('en')
-  const [isTableView, setIsTableView] = useState(false)
 
   useEffect(() => {
     const stored = document.cookie.split(';').find(c => c.trim().startsWith('locale='))
@@ -43,7 +42,7 @@ export function JoinForm({ code }: { code: string }) {
       const res = await fetch(`/api/rooms/${code}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ displayName: displayName.trim(), isTableView }),
+        body: JSON.stringify({ displayName: displayName.trim() }),
         credentials: 'include',
       })
       const json = await res.json()
@@ -83,30 +82,6 @@ export function JoinForm({ code }: { code: string }) {
           placeholder={t('ui.enter_name', locale)}
           autoFocus
         />
-      </div>
-      <div className="field">
-        <label className="label">{t('ui.join_as', locale)}</label>
-        <div className="row">
-          <button
-            type="button"
-            className={`btn block ${!isTableView ? 'blue' : 'paper'}`}
-            onClick={() => setIsTableView(false)}
-          >
-            {t('ui.player', locale)}
-          </button>
-          <button
-            type="button"
-            className={`btn block ${isTableView ? 'blue' : 'paper'}`}
-            onClick={() => setIsTableView(true)}
-          >
-            {t('ui.table_view', locale)}
-          </button>
-        </div>
-        {isTableView && (
-          <p className="muted mt" style={{ fontSize: '.8rem' }}>
-            {t('ui.table_view_hint', locale)}
-          </p>
-        )}
       </div>
       <button className="btn block blue" onClick={handleJoin} disabled={loading}>
         {loading ? '...' : t('ui.join', locale)}
