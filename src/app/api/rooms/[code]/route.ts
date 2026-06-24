@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { serializeRoom, findPlayerByCode } from '@/lib/serialize'
+import { serializeRoom } from '@/lib/serialize'
 
 export async function GET(
   request: Request,
@@ -19,12 +19,40 @@ export async function GET(
       .find(c => c.startsWith('guest_token='))
       ?.split('=')[1] || null
 
-    const playerInfo = await findPlayerByCode(code, userId, guestToken)
-    if (!playerInfo) {
+    // Resolve room + player identity in parallel
+    const { data: room } = await supabase
+      .from('rooms')
+      .select('id, host_user_id, code')
+      .eq('code', code.toUpperCase())
+      .single()
+
+    if (!room) {
       return NextResponse.json({ ok: false, error: 'Room not found or not joined' }, { status: 404 })
     }
 
-    const data = await serializeRoom(code, playerInfo.id, playerInfo.isHost)
+    let isHost = false
+    let selfPlayerId: number | null = null
+
+    if (userId && room.host_user_id === userId) {
+      isHost = true
+    } else {
+      // Check guest token and user id in parallel
+      const [guestResult, userResult] = await Promise.all([
+        guestToken
+          ? supabase.from('room_players').select('id').eq('room_id', room.id).eq('guest_token', guestToken).single()
+          : Promise.resolve({ data: null }),
+        userId
+          ? supabase.from('room_players').select('id').eq('room_id', room.id).eq('user_id', userId).single()
+          : Promise.resolve({ data: null }),
+      ])
+      selfPlayerId = guestResult.data?.id ?? userResult.data?.id ?? null
+
+      if (!selfPlayerId) {
+        return NextResponse.json({ ok: false, error: 'Room not found or not joined' }, { status: 404 })
+      }
+    }
+
+    const data = await serializeRoom(code, selfPlayerId, isHost)
     if (!data) {
       return NextResponse.json({ ok: false, error: 'Room not found' }, { status: 404 })
     }

@@ -59,17 +59,22 @@ export async function serializeRoom(code: string, selfPlayerId: number | null, i
 
   const roomRow = room as RoomRow
 
-  const { data: players } = await supabase
-    .from('room_players')
-    .select('*, role:roles(*)')
-    .eq('room_id', roomRow.id)
-    .order('seat_no', { ascending: true, nullsFirst: false })
-    .order('id', { ascending: true })
+  // Run independent queries in parallel
+  const [playersResult, roomRolesResult] = await Promise.all([
+    supabase
+      .from('room_players')
+      .select('*, role:roles(*)')
+      .eq('room_id', roomRow.id)
+      .order('seat_no', { ascending: true, nullsFirst: false })
+      .order('id', { ascending: true }),
+    supabase
+      .from('room_roles')
+      .select('role_id, qty')
+      .eq('room_id', roomRow.id),
+  ])
 
-  const { data: roomRoles } = await supabase
-    .from('room_roles')
-    .select('role_id, qty')
-    .eq('room_id', roomRow.id)
+  const players = playersResult.data
+  const roomRoles = roomRolesResult.data
 
   // Fetch role names separately for room_roles display
   let roleNames: Map<number, { name_en: string; name_id: string; description_en: string | null; description_id: string | null; faction: string }> = new Map()
