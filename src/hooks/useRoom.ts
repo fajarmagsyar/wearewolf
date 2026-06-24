@@ -24,8 +24,10 @@ export function useRoom(code: string): UseRoomReturn {
   const [error, setError] = useState<string | null>(null)
   const [timerBroadcast, setTimerBroadcast] = useState<TimerBroadcast | null>(null)
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
+  const versionRef = useRef(-1)
 
   const setData = useCallback((newData: SerializedRoom) => {
+    versionRef.current = newData.stateVersion
     setDataRaw(prev => {
       if (!prev || newData.stateVersion >= prev.stateVersion) return newData
       return prev
@@ -34,7 +36,12 @@ export function useRoom(code: string): UseRoomReturn {
 
   const fetchRoom = useCallback(async () => {
     try {
-      const res = await fetch(`/api/rooms/${code}`, { credentials: 'include' })
+      const headers: Record<string, string> = { credentials: 'include' }
+      if (versionRef.current > 0) {
+        headers['If-None-Match'] = String(versionRef.current)
+      }
+      const res = await fetch(`/api/rooms/${code}`, { credentials: 'include', headers })
+      if (res.status === 304) return // already up to date
       const json = await res.json()
       if (json.ok) {
         setData(json.data)

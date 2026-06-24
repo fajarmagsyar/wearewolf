@@ -2,6 +2,25 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { serializeRoom } from '@/lib/serialize'
 
+// Server-side cache: serialized room data keyed by "code:playerId"
+// Only used when the client already has the latest stateVersion (via ETag check).
+const roomCache = new Map<string, { data: unknown; expiresAt: number }>()
+const CACHE_TTL_MS = 2000
+
+function getCachedRoom(cacheKey: string) {
+  const entry = roomCache.get(cacheKey)
+  if (!entry) return null
+  if (Date.now() > entry.expiresAt) {
+    roomCache.delete(cacheKey)
+    return null
+  }
+  return entry.data
+}
+
+function setCachedRoom(cacheKey: string, data: unknown) {
+  roomCache.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS })
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -22,7 +41,7 @@ export async function GET(
     // Resolve room + player identity in parallel
     const { data: room } = await supabase
       .from('rooms')
-      .select('id, host_user_id, code')
+      .select('id, host_user_id, code, state_version')
       .eq('code', code.toUpperCase())
       .single()
 
@@ -52,10 +71,24 @@ export async function GET(
       }
     }
 
+    // ETag: client sends its current stateVersion — if match, skip serialization entirely
+    const clientVersion = request.headers.get('if-none-match')
+    if (clientVersion && parseInt(clientVersion, 10) === room.state_version) {
+      return new NextResponse(null, { status: 304 })
+    }
+
+    const cacheKey = `${code}:${selfPlayerId ?? 'host'}`
+    const cached = getCachedRoom(cacheKey)
+    if (cached) {
+      return NextResponse.json({ ok: true, data: cached })
+    }
+
     const data = await serializeRoom(code, selfPlayerId, isHost)
     if (!data) {
       return NextResponse.json({ ok: false, error: 'Room not found' }, { status: 404 })
     }
+
+    setCachedRoom(cacheKey, data)
 
     return NextResponse.json({ ok: true, data })
   } catch (error) {

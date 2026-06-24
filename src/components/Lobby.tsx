@@ -22,8 +22,10 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
   const canDeal = totalRoles === playerCount && playerCount >= 3
 
   const [shareUrl, setShareUrl] = useState('')
+  const [tvUrl, setTvUrl] = useState('')
   useEffect(() => {
     setShareUrl(`${window.location.origin}/join/${room.code}`)
+    setTvUrl(`${window.location.origin}/table/${room.code}`)
   }, [room.code])
 
   const copyCode = () => {
@@ -40,6 +42,18 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
       } catch {}
     }
     navigator.clipboard?.writeText(shareUrl)
+    window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
+  }
+
+  const shareTvLink = async () => {
+    if (!tvUrl) return
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "WE'RE WOLF — Table View", url: tvUrl })
+        return
+      } catch {}
+    }
+    navigator.clipboard?.writeText(tvUrl)
     window.dispatchEvent(new CustomEvent('toast', { detail: { message: t('ui.copied', locale), type: 'ok' } }))
   }
 
@@ -67,6 +81,9 @@ export function Lobby({ room, locale, onDeal, onSetRole, onSuggest, onKick, avai
         )}
         <button className="btn sm paper mt" onClick={shareLink} style={{ marginTop: 10 }}>
           🔗 {t('ui.share', locale)} Link
+        </button>
+        <button className="btn sm paper mt" onClick={shareTvLink} style={{ marginTop: 10 }}>
+          📺 {t('ui.table_view', locale)}
         </button>
       </div>
 
