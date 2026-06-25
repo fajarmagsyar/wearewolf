@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { titleCase } from '@/lib/utils'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -81,6 +82,8 @@ export async function POST(
         path: '/',
       })
     }
+
+    broadcastRoomState(code)
 
     return response
   } catch (error) {

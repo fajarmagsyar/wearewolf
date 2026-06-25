@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -57,6 +58,9 @@ export async function POST(
           .insert({ room_id: room.id, role_id: roleId, qty })
       }
     }
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error setting room role:', error)

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -58,6 +59,9 @@ export async function POST(
       .from('room_players')
       .update({ is_protected: true })
       .eq('id', playerId)
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error marking protect:', error)

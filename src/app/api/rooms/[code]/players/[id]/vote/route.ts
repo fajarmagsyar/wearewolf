@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { findPlayerByCode } from '@/lib/serialize'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -56,6 +57,14 @@ export async function POST(
       .from('room_players')
       .update({ voted_for_id: playerId })
       .eq('id', playerInfo.id)
+
+    await supabase
+      .from('rooms')
+      .update({ state_version: room.state_version + 1 })
+      .eq('id', room.id)
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error voting:', error)

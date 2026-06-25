@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -38,6 +39,9 @@ export async function POST(
       .from('rooms')
       .update({ voting_open: false, state_version: room.state_version + 1 })
       .eq('id', room.id)
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error resetting votes:', error)

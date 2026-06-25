@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { findPlayerByCode } from '@/lib/serialize'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -116,6 +117,9 @@ export async function POST(
         state_version: room.state_version + 1,
       })
       .eq('id', room.id)
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error dealing:', error)

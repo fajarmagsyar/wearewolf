@@ -5,7 +5,7 @@ import { serializeRoom } from '@/lib/serialize'
 // Server-side cache: serialized room data keyed by "code:playerId"
 // Only used when the client already has the latest stateVersion (via ETag check).
 const roomCache = new Map<string, { data: unknown; expiresAt: number }>()
-const CACHE_TTL_MS = 2000
+const CACHE_TTL_MS = 5000
 
 function getCachedRoom(cacheKey: string) {
   const entry = roomCache.get(cacheKey)

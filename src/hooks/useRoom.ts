@@ -8,6 +8,11 @@ export interface TimerBroadcast {
   elapsedSecs: number
 }
 
+interface RoomStateBroadcast {
+  stateVersion: number
+  data: SerializedRoom
+}
+
 interface UseRoomReturn {
   data: SerializedRoom | null
   loading: boolean
@@ -25,6 +30,8 @@ export function useRoom(code: string): UseRoomReturn {
   const [timerBroadcast, setTimerBroadcast] = useState<TimerBroadcast | null>(null)
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
   const versionRef = useRef(-1)
+  const fetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastBroadcastVersionRef = useRef(-1)
 
   const setData = useCallback((newData: SerializedRoom) => {
     versionRef.current = newData.stateVersion
@@ -56,8 +63,23 @@ export function useRoom(code: string): UseRoomReturn {
     }
   }, [code, setData])
 
+  const debouncedFetchRoom = useCallback(() => {
+    if (fetchTimerRef.current) {
+      clearTimeout(fetchTimerRef.current)
+    }
+    fetchTimerRef.current = setTimeout(() => {
+      fetchRoom()
+      fetchTimerRef.current = null
+    }, 250)
+  }, [fetchRoom])
+
   useEffect(() => {
     fetchRoom()
+    return () => {
+      if (fetchTimerRef.current) {
+        clearTimeout(fetchTimerRef.current)
+      }
+    }
   }, [fetchRoom])
 
   useEffect(() => {
@@ -65,11 +87,18 @@ export function useRoom(code: string): UseRoomReturn {
 
     const channel = supabase
       .channel(`room:${code}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `code=eq.${code}` }, () => fetchRoom())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_players' }, () => fetchRoom())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_roles' }, () => fetchRoom())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `code=eq.${code}` }, () => debouncedFetchRoom())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_players' }, () => debouncedFetchRoom())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'room_roles' }, () => debouncedFetchRoom())
       .on('broadcast', { event: 'timer' }, ({ payload }) => {
         setTimerBroadcast(payload as TimerBroadcast)
+      })
+      .on('broadcast', { event: 'room_state' }, ({ payload }) => {
+        const state = payload as RoomStateBroadcast
+        if (state.stateVersion > lastBroadcastVersionRef.current) {
+          lastBroadcastVersionRef.current = state.stateVersion
+          setData(state.data)
+        }
       })
       .subscribe()
 
@@ -79,7 +108,7 @@ export function useRoom(code: string): UseRoomReturn {
       supabase.removeChannel(channel)
       channelRef.current = null
     }
-  }, [code, fetchRoom])
+  }, [code, debouncedFetchRoom, setData])
 
   const broadcastTimer = useCallback((state: TimerBroadcast) => {
     channelRef.current?.send({ type: 'broadcast', event: 'timer', payload: state })

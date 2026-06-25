@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -59,6 +60,9 @@ export async function POST(
         .from('room_roles')
         .upsert(inserts, { onConflict: 'room_id,role_id' })
     }
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error batch setting roles:', error)

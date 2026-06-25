@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { broadcastRoomState } from '@/lib/broadcast'
 
 export async function POST(
   _request: Request,
@@ -40,6 +41,9 @@ export async function POST(
     if (error) {
       return NextResponse.json({ ok: false, error: 'Player not found' }, { status: 404 })
     }
+
+    broadcastRoomState(code)
+
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('Error kicking player:', error)
