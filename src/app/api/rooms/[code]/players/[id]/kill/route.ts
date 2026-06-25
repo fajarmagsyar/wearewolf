@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { broadcastRoomState } from '@/lib/broadcast'
+import { broadcastRoomStateFireAndForget } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -58,7 +58,7 @@ export async function POST(
       .update({ marked_for_death: true })
       .eq('id', playerId)
 
-    broadcastRoomState(code)
+    broadcastRoomStateFireAndForget(code)
 
     return NextResponse.json({ ok: true })
   } catch (error) {

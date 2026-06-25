@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { titleCase } from '@/lib/utils'
-import { broadcastRoomState } from '@/lib/broadcast'
+import { broadcastRoomStateFireAndForget } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -83,7 +83,7 @@ export async function POST(
       })
     }
 
-    broadcastRoomState(code)
+    broadcastRoomStateFireAndForget(code)
 
     return response
   } catch (error) {

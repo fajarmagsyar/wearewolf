@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { findPlayerByCode } from '@/lib/serialize'
-import { broadcastRoomState } from '@/lib/broadcast'
+import { broadcastRoomStateFireAndForget } from '@/lib/broadcast'
 
 export async function POST(
   request: Request,
@@ -118,7 +118,7 @@ export async function POST(
       })
       .eq('id', room.id)
 
-    broadcastRoomState(code)
+    broadcastRoomStateFireAndForget(code)
 
     return NextResponse.json({ ok: true })
   } catch (error) {

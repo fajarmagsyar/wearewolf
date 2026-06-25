@@ -29,3 +29,7 @@ export async function broadcastRoomState(code: string): Promise<void> {
     console.error('Broadcast error:', err)
   }
 }
+
+export function broadcastRoomStateFireAndForget(code: string): void {
+  broadcastRoomState(code).catch(() => {})
+}

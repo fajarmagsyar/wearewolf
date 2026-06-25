@@ -69,6 +69,10 @@ export default function RoomPage() {
     return json
   }, [setData])
 
+  const optimisticUpdate = useCallback((updater: (prev: typeof data) => typeof data) => {
+    setData(updater(data)!)
+  }, [data, setData])
+
   const handleDeal = useCallback(async () => {
     await apiCall(`/api/rooms/${code}/deal`)
   }, [apiCall, code])
@@ -90,13 +94,93 @@ export default function RoomPage() {
     return apiCall(url)
   }, [apiCall, code, data])
   const handleResolveNight = useCallback(() => apiCall(`/api/rooms/${code}/night/resolve`), [apiCall, code])
-  const handleOpenVoting = useCallback(() => apiCall(`/api/rooms/${code}/voting/open`), [apiCall, code])
-  const handleCloseVoting = useCallback(() => apiCall(`/api/rooms/${code}/voting/close`), [apiCall, code])
-  const handleClearVotes = useCallback(() => apiCall(`/api/rooms/${code}/voting/reset`), [apiCall, code])
-  const handleVote = useCallback((playerId: number) => apiCall(`/api/rooms/${code}/players/${playerId}/vote`), [apiCall, code])
+  const handleOpenVoting = useCallback(() => {
+    if (!data) return apiCall(`/api/rooms/${code}/voting/open`)
+    const prevData = data
+    optimisticUpdate(prev => prev ? { ...prev, settings: { ...prev.settings, votingOpen: true } } : prev)
+    return apiCall(`/api/rooms/${code}/voting/open`).catch(() => { setData(prevData) })
+  }, [data, apiCall, code, optimisticUpdate, setData])
+
+  const handleCloseVoting = useCallback(() => {
+    if (!data) return apiCall(`/api/rooms/${code}/voting/close`)
+    const prevData = data
+    optimisticUpdate(prev => prev ? { ...prev, settings: { ...prev.settings, votingOpen: false } } : prev)
+    return apiCall(`/api/rooms/${code}/voting/close`).catch(() => { setData(prevData) })
+  }, [data, apiCall, code, optimisticUpdate, setData])
+
+  const handleClearVotes = useCallback(() => {
+    if (!data) return apiCall(`/api/rooms/${code}/voting/reset`)
+    const prevData = data
+    optimisticUpdate(prev => prev ? {
+      ...prev,
+      settings: { ...prev.settings, votingOpen: false },
+      players: prev.players.map(p => ({ ...p, myVote: false, votes: 0 })),
+    } : prev)
+    return apiCall(`/api/rooms/${code}/voting/reset`).catch(() => { setData(prevData) })
+  }, [data, apiCall, code, optimisticUpdate, setData])
+  const handleVote = useCallback((playerId: number): Promise<void> => {
+    if (!data) return Promise.resolve()
+    const prevData = data
+    optimisticUpdate(prev => {
+      if (!prev) return prev
+      const selfId = prev.selfPlayerId
+      if (!selfId) return prev
+      return {
+        ...prev,
+        players: prev.players.map(p => {
+          if (p.id === selfId) {
+            return { ...p, myVote: p.id === playerId, votes: p.votes + (p.myVote ? 0 : 1) }
+          }
+          if (p.myVote && p.id !== playerId) {
+            return { ...p, myVote: false, votes: Math.max(0, p.votes - 1) }
+          }
+          return p
+        }),
+      }
+    })
+    return apiCall(`/api/rooms/${code}/players/${playerId}/vote`).catch(() => {
+      setData(prevData)
+    }).then(() => {})
+  }, [data, apiCall, code, optimisticUpdate, setData])
   const handlePeek = useCallback(() => apiCall(`/api/rooms/${code}/players/peek`), [apiCall, code])
-  const handleMarkKill = useCallback((playerId: number) => apiCall(`/api/rooms/${code}/players/${playerId}/kill`), [apiCall, code])
-  const handleMarkProtect = useCallback((playerId: number) => apiCall(`/api/rooms/${code}/players/${playerId}/protect`), [apiCall, code])
+  const handleMarkKill = useCallback((playerId: number): Promise<void> => {
+    if (!data) return Promise.resolve()
+    const prevData = data
+    optimisticUpdate(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        players: prev.players.map(p => {
+          if (p.id === playerId) {
+            return { ...p, markedKill: !p.markedKill }
+          }
+          return { ...p, markedKill: false }
+        }),
+      }
+    })
+    return apiCall(`/api/rooms/${code}/players/${playerId}/kill`).catch(() => {
+      setData(prevData)
+    }).then(() => {})
+  }, [data, apiCall, code, optimisticUpdate, setData])
+  const handleMarkProtect = useCallback((playerId: number): Promise<void> => {
+    if (!data) return Promise.resolve()
+    const prevData = data
+    optimisticUpdate(prev => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        players: prev.players.map(p => {
+          if (p.id === playerId) {
+            return { ...p, markedProtect: !p.markedProtect }
+          }
+          return { ...p, markedProtect: false }
+        }),
+      }
+    })
+    return apiCall(`/api/rooms/${code}/players/${playerId}/protect`).catch(() => {
+      setData(prevData)
+    }).then(() => {})
+  }, [data, apiCall, code, optimisticUpdate, setData])
 
   const handleEliminate = useCallback(async (playerId: number) => {
     if (!data) return
